@@ -1,0 +1,107 @@
+#include<stdio.h>
+#include<stdlib.h>
+
+typedef struct DLL{
+    int data;
+    struct DLL* prev;
+    struct DLL* next;
+}DLL;
+
+DLL* createNode(int data){
+    DLL* newNode = (DLL*)malloc(sizeof(DLL));
+    newNode->data = data;
+    newNode->prev = NULL;
+    newNode->next = NULL;
+    return newNode;
+}
+
+void insert_at_beg(DLL** head, int data){
+    DLL* newNode = createNode(data);
+    if(*head == NULL){
+        *head = newNode;
+        return;
+    }
+    newNode->next = *head;
+    (*head)->prev = newNode;
+    *head = newNode;
+}
+
+void insert_at_pos(DLL** head, int data, int pos){
+    if (pos == 0){
+        insert_at_beg(head, data);
+        return;
+    }
+    DLL *newNode = createNode(data);
+    DLL *temp = *head;
+    for(int i=0; i<pos-1 && temp!=NULL; i++){
+        temp = temp->next;
+    }
+    if(temp == NULL){
+        printf("Position out of bound\n");
+        free(newNode);
+        return;
+    }
+    newNode->next = temp->next;
+    newNode->prev = temp;
+    if(temp->next != NULL){
+        temp->next->prev = newNode;
+    }
+    temp->next = newNode;
+}
+
+void display(DLL* head){
+    DLL* temp = head;
+    while(temp != NULL){
+        printf("%d ", temp->data);
+        temp = temp->next;
+    }
+    printf("\n");
+}
+
+void delete_at_pos(DLL** head, int pos){
+    if(*head == NULL){
+        printf("List is empty\n");
+        return;
+    }
+    DLL* temp = *head;
+    if(pos == 0){
+        *head = temp->next;
+        if(*head != NULL){
+            (*head)->prev = NULL;
+        }
+        free(temp);
+        return;
+    }
+    for(int i=0; i<pos && temp!=NULL; i++){
+        temp = temp->next;
+    }
+    if(temp == NULL){
+        printf("Position out of bound\n");
+        return;
+    }
+    if(temp->next != NULL){
+        temp->next->prev = temp->prev;
+    }
+    if(temp->prev != NULL){
+        temp->prev->next = temp->next;
+    }
+    free(temp);
+}
+
+int main() {
+    DLL* head = NULL;
+
+    insert_at_beg(&head, 10);
+    insert_at_beg(&head, 20);
+    insert_at_beg(&head, 5);
+    insert_at_pos(&head, 15, 2);
+
+    printf("Doubly Linked List: ");
+    display(head);
+
+    delete_at_pos(&head, 2);
+    printf("After deleting at position 2: ");
+    display(head);
+
+    return 0;
+}
